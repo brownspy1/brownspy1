@@ -15,7 +15,7 @@
 
 - 📫 How to reach me **brownspy1@protonmail.com**
 
-- ⚡ Fun fact **I am funny🤣**
+- ⚡ Fun fact **I have a good sense of humor and can make people laugh. 😂**
 
 <h3 align="left">Connect with me:</h3>
 <p align="left">
