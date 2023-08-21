@@ -36,7 +36,7 @@
 ![](https://github-readme-stats.vercel.app/api?username=brownspy1&theme=radical&hide_border=false&include_all_commits=true&count_private=true)<br/>
 ![](https://github-readme-streak-stats.herokuapp.com/?user=brownspy1&theme=radical&hide_border=false)<br/>
 
-<p><img align="left" src="https://github-readme-stats.vercel.app/api/top-langs?username=brownspy1&show_icons=true&locale=en&layout=compact" alt="brownspy1" /></p>
+![](https://github-readme-stats.vercel.app/api/top-langs?username=brownspy1&show_icons=true&locale=en&layout=compact )
 
 
   
