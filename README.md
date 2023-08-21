@@ -1,7 +1,9 @@
 <h1 align="center">Hi 👋, I'm M.Mahadi</h1>
 <h3 align="center">As a developer from Bangladesh, I possess exceptional skills in both frontend and backend development, acquired through extensive experience in the field.</h3>
 
-<p align="left"> <img src="https://komarev.com/ghpvc/?username=brownspy1&label=Profile%20views&color=0e75b6&style=flat" alt="brownspy1" /> </p>
+#### 🙄 Visitor count <br>
+
+  <img src="https://profile-counter.glitch.me/brownspy1/count.svg" /><hr>
 
 - 🔭 I'm currently Studying Computer Science for 2 semesters [Studying Computer Science](https://www.barishalpoly.gov.bd/)
 
