@@ -41,7 +41,7 @@
 
 
 
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=brownspy1&theme=radical&hide=glsl,python" />
+  
 
 
 ### 🔝 Top Contributed Repo
