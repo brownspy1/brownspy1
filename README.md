@@ -43,7 +43,7 @@
 
   
 
-
+<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=brownspy1&theme=radical&hide=glsl" />
 ### 🔝 Top Contributed Repo
 ![](https://github-contributor-stats.vercel.app/api?username=brownspy1&limit=5&theme=tokyonight&combine_all_yearly_contributions=true)
 
