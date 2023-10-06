@@ -7,7 +7,7 @@
 
 - 🔭 I'm currently Studying Computer Science for 2 semesters [Studying Computer Science](https://www.barishalpoly.gov.bd/)
 
-- 🌱 I’m currently learning **Python**
+- 🌱 I’m currently learning [Python](https://www.beecrowd.com.br/judge/en/profile/896985)
 
 - 👨‍💻 All of my projects are available at [https://itcoursem.000webhostapp.com/brownspy1/](https://itcoursem.000webhostapp.com/brownspy1/)
 
