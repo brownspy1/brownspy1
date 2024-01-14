@@ -5,7 +5,7 @@
 
   <img src="https://profile-counter.glitch.me/brownspy1/count.svg" /><hr>
 
-- 🔭 I'm currently Studying Computer Science for 2 semesters [Studying Computer Science](https://www.barishalpoly.gov.bd/)
+- 🔭 I'm currently Studying Computer Science for 3 semesters [Studying Computer Science](https://www.barishalpoly.gov.bd/)
 
 - 🌱 I’m currently learning [Python](https://www.beecrowd.com.br/judge/en/profile/896985)
 
