@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M. Mahadi's Portfolio Console</title>
+  <style>
+    /* Global styles */
+    body {
+      background-color: #000;
+      color: #0F0;
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      cursor: none; /* Hide cursor for console effect */
+      overflow: hidden; /* Prevent scrolling */
+      perspective: 1000px; /* For console glass effect */
+    }
+
+    /* Mouse tracking background effect */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background:
+        radial-gradient(circle closest-side, #0F0, transparent 50%),
+        radial-gradient(circle closest-side, #00F, transparent 50%),
+        radial-gradient(circle closest-side, #F0F, transparent 50%);
+      background-size: 300% 300%;
+      background-position: 50% 50%; /* Center initially */
+      transition: background-position 0.1s ease-out;
+      z-index: -1;
+    }
+
+    /* Console styles */
+    .console {
+      width: 600px;
+      background-color: rgba(0, 0, 0, 0.6); /* Transparent background for glass effect */
+      border: 2px solid #0F0;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+      transform: rotateX(20deg); /* Console glass tilt effect */
+      position: relative; /* Required for child element positioning */
+      overflow: hidden; /* Prevents background overflow */
+    }
+
+    .header {
+      margin-bottom: 10px;
+    }
+
+    .title {
+      color: #0F0;
+      font-size: 1.2rem;
+    }
+
+    .content {
+      border: 1px solid #0F0;
+      padding: 10px;
+      border-radius: 4px;
+      min-height: 200px;
+      overflow-y: auto;
+    }
+
+    .input-line {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .prompt {
+      color: #0F0;
+      font-size: 1.2rem;
+      margin-right: 5px;
+    }
+
+    #command-input {
+      background-color: transparent;
+      border: none;
+      color: #0F0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1.2rem;
+      width: calc(100% - 20px);
+      outline: none;
+    }
+
+    #command-input:focus {
+      border: none;
+      outline: none;
+    }
+
+    .output p {
+      margin: 5px 0;
+    }
+
+    /* Instructions styles */
+    .instructions {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -230%);
+      background-color: rgba(0, 255, 0, 0.1);
+      padding: 10px;
+      border-radius: 4px;
+      box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+      z-index: 999;
+    }
+
+    .instructions h3 {
+      color: #0F0;
+      font-size: 1.2rem;
+      margin-bottom: 5px;
+    }
+
+    .instructions ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .instructions li {
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body onmousemove="handleMouseMove(event)" onmouseenter="changeMouseStyle(true)" onmouseleave="changeMouseStyle(false)">
+  <div class="instructions">
+    <h3>Instructions:</h3>
+    <ul>
+      <li>Type a command in the console input below.</li>
+      <li>Available commands: help, about, skills, projects, contact, exit.</li>
+      <li>Press Enter to execute a command.</li>
+      <li>Output will appear in the console area.</li>
+      <li>Enjoy exploring M. Mahadi's portfolio!</li>
+    </ul>
+  </div>
+
+  <div class="console" id="console">
+    <div class="header">
+      <span class="title">>> Welcome to M. Mahadi's Portfolio Console <<</span>
+    </div>
+    <div class="content">
+      <div class="output"></div>
+      <div class="input-line">
+        <span class="prompt">$</span>
+        <input type="text" id="command-input" autocomplete="off" autofocus>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Function to handle mouse move event and update background position
+    function handleMouseMove(event) {
+      const consoleElement = document.getElementById('console');
+      const mouseX = event.clientX;
+      const mouseY = event.clientY;
+
+      // Calculate background position based on mouse coordinates
+      const bgPositionX = (mouseX / window.innerWidth) * 100 - 50;
+      const bgPositionY = (mouseY / window.innerHeight) * 100 - 50;
+
+      // Apply styles to console background
+      consoleElement.style.backgroundPosition = `${bgPositionX}% ${bgPositionY}%`;
+    }
+
+    // Function to change mouse cursor style
+    function changeMouseStyle(enter) {
+      document.body.style.cursor = enter ? 'pointer' : 'default';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const input = document.getElementById('command-input');
+      const output = document.querySelector('.output');
+
+      input.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+          const command = input.value.trim().toLowerCase();
+          input.value = '';
+
+          handleCommand(command);
+        }
+      });
+
+      function handleCommand(command) {
+        // Clear previous output
+        output.innerHTML = '';
+
+        switch (command) {
+          case 'help':
+            output.innerHTML += "<p>Available Commands:<br>"
+                              + " - help : Show available commands<br>"
+                              + " - about : Display information about M. Mahadi<br>"
+                              + " - skills : List programming skills<br>"
+                              + " - projects : View list of projects<br>"
+                              + " - contact : Display contact information<br>"
+                              + " - exit : Exit the portfolio console</p>";
+            break;
+          case 'about':
+            output.innerHTML += "<p>> About M. Mahadi <<br>"
+                              + "Name: M. Mahadi<br>"
+                              + "Passion: Full-time programming learner, competitive programmer<br>"
+                              + "Future Goal: Software Engineer at Google</p>";
+            break;
+          case 'skills':
+            output.innerHTML += "<p>> Programming Skills <<br>"
+                              + "- Python<br>"
+                              + "- Java<br>"
+                              + "- C++<br>"
+                              + "- HTML/CSS<br>"
+                              + "- JavaScript</p>";
+            break;
+          case 'projects':
+            output.innerHTML += "<p>> Projects <<br>"
+                              + "1. Project A - Description<br>"
+                              + "2. Project B - Description</p>";
+            break;
+          case 'contact':
+            output.innerHTML += "<p>> Contact Information <<br>"
+                              + "Name: M. Mahadi<br>"
+                              + "Number: +8801732657219<br>"
+                              + "Email: mh0643893@gmail.com<br>"
+                              + "Facebook: @brownspy2<br>"
+                              + "GitHub: @brownspy1</p>";
+            break;
+          case 'exit':
+            output.innerHTML += "<p>Exiting...</p>";
+            setTimeout(() => {
+              window.close();
+            }, 1000);
+            break;
+          default:
+            output.innerHTML += `<p>Command '${command}' not found. Type 'help' for available commands.</p>`;
+        }
+        scrollToBottom();
+      }
+
+      function scrollToBottom() {
+        output.scrollTop = output.scrollHeight;
+      }
+    });
+  </script>
+</body>
+</html>
