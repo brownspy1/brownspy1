@@ -9,7 +9,7 @@
 
 - 🌱 I’m currently learning [Python](https://www.beecrowd.com.br/judge/en/profile/896985)
 
-- 👨‍💻 All of my projects are available at ([Click](https://brownspy1.github.io/brownspy1/))
+- 👨‍💻 All of my projects are available at [Hit me](https://brownspy1.github.io/brownspy1/)
 
 - 📝 I regularly write articles on [https://motivedupro.blogspot.com/](https://motivedupro.blogspot.com/)
 
