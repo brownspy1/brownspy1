@@ -5,15 +5,15 @@
 
   <img src="https://profile-counter.glitch.me/brownspy1/count.svg" /><hr>
 
-- 🔭 I'm currently Studying Computer Science for 3 semesters [Studying Computer Science](https://www.barishalpoly.gov.bd/)
+- 🔭 I'm currently Studying Computer Science for 4 semesters [Studying Computer Science](https://www.barishalpoly.gov.bd/)
 
-- 🌱 I’m currently learning [Python](https://www.beecrowd.com.br/judge/en/profile/896985)
+- 🌱 I’m currently learning [DSA](#)
 
 - 👨‍💻 All of my projects are available at [Hit me](https://brownspy1.github.io/brownspy1/)
 
-- 📝 I regularly write articles on [https://motivedupro.blogspot.com/](https://motivedupro.blogspot.com/)
+- 📝 I regularly write articles on [blogspot](https://motivedupro.blogspot.com/)
 
-- 💬 Ask me about **HTML, CSS, BOOTSTRAP**
+- 💬 Ask me about **C/C++/Python**
 
 - 📫 How to reach me **brownspy1@protonmail.com**
 
