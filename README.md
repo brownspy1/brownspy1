@@ -7,7 +7,7 @@
 
 - 🔭 I'm currently Studying Computer Science for 4 semesters [Studying Computer Science](https://www.barishalpoly.gov.bd/)
 
-- 🌱 I’m currently learning [DSA](#)
+- 🌱 I’m currently learning [Django](#)
 
 - 👨‍💻 All of my projects are available at [Hit me](https://brownspy1.github.io/brownspy1/)
 
