@@ -94,10 +94,19 @@
 
     /* ASCII header */
     #asc {
-      font-family:'VT323',monospace;font-size:1.25rem;color:var(--g);
-      white-space:pre;line-height:1.2;margin-bottom:10px;
-      animation:glow 3s ease-in-out infinite alternate;overflow-x:auto;
+      font-family:'VT323',monospace;
+      font-size:1.25rem;
+      color:var(--g);
+      white-space:pre;
+      line-height:1.25;
+      margin-bottom:10px;
+      text-align:center;
+      animation:glow 3s ease-in-out infinite alternate;
+      display:block;
+      opacity:0;
+      transition:opacity .5s ease;
     }
+    #asc.show { opacity:1; }
     @keyframes glow {
       from{text-shadow:0 0 8px var(--gg);}
       to{text-shadow:0 0 22px var(--gg),0 0 45px rgba(0,255,65,.25);}
@@ -154,7 +163,6 @@
     }
 
     @media(max-width:600px){
-      #asc{font-size:.7rem;}
       #term{padding:10px 12px;}
       #wrap{width:99%;}
     }
@@ -322,26 +330,43 @@ setTimeout(()=>{
 
 /* ═══════ ASCII HEADER ═══════ */
 const ASCII=
-`█   █  ███  █   █  ███  ████  ███ 
- ██ ██ █   █ █   █ █   █ █   █  █  
- █ █ █ █████ █████ █████ █   █  █  
- █   █ █   █ █   █ █   █ █   █  █  
- █   █ █   █ █   █ █   █ ████  ███ `;
+`  __  __   _   _  _   _   _   ___  _
+ |  \/  | /_\ | || || /_\ |  \ |_ _|
+ | |\/| |/ _ \| __ |/ _ \| |) | | |
+ |_|  |_/_/ \_\_||_/_/ \_\|___/ |___|
+`;
 
 /* ═══════════════════════════════════════════════
    TERMINAL ENGINE — DOM-BASED (no raw HTML strings)
 ═══════════════════════════════════════════════ */
 function startTerminal(){
-  // Typewriter for ASCII art
   const asc=document.getElementById('asc');
-  let idx=0;
-  const tw=setInterval(()=>{
-    asc.textContent+=ASCII[idx++];
-    if(idx>=ASCII.length){clearInterval(tw);welcome();}
-  },3);
-
   const OUT=document.getElementById('out');
   const INP=document.getElementById('inp');
+
+  // Set ASCII art text immediately (no typewriter — prevents misalignment)
+  asc.textContent=ASCII;
+
+  // Auto-scale font to fit terminal width
+  function scaleAscii(){
+    asc.style.fontSize='';
+    const maxW=asc.parentElement.clientWidth - 44;
+    // measure natural width
+    const naturalW=asc.scrollWidth;
+    if(naturalW > maxW){
+      const ratio=maxW/naturalW;
+      const base=parseFloat(getComputedStyle(asc).fontSize);
+      asc.style.fontSize=(base*ratio)+'px';
+    }
+    asc.classList.add('show'); // fade in after sizing
+  }
+  // slight delay to let DOM settle
+  setTimeout(scaleAscii, 50);
+  window.addEventListener('resize', scaleAscii);
+
+  // Welcome after art fades in
+  setTimeout(welcome, 600);
+
   let hist=[],hIdx=-1;
 
   document.getElementById('term').addEventListener('click',()=>INP.focus());
