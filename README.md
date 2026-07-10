@@ -1,10 +1,12 @@
 <div align="center">
 
+![Header Wave](https://capsule-render.vercel.app/api?type=waving&color=00FF41,00CC33,FF00FF&height=200&section=header&text=M.%20Mahadi&fontSize=70&fontColor=00FF41&animation=fadeIn&fontAlignY=38&desc=Full-Stack%20Dev%20%7C%20Competitive%20Programmer%20%7C%20CS%20Student&descAlignY=60&descAlign=50)
+
 <!-- ══════════════════════════════════════════════════════════
      ANIMATED TYPING HEADER
 ══════════════════════════════════════════════════════════ -->
 
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=32&duration=3000&pause=1000&color=00FF41&background=00000000&center=true&vCenter=true&multiline=false&repeat=true&width=700&height=60&lines=%3E+Hello%2C+World!+I'm+M.+Mahadi+%F0%9F%91%BE;%3E+Full-Stack+Dev+%7C+Competitive+Coder;%3E+Future+Software+Engineer+%40+Google+%F0%9F%9A%80;%3E+Bangladesh+%F0%9F%87%A7%F0%9F%87%A9+%7C+Hacking+my+way+up+%F0%9F%94%A5)](https://github.com/brownspy1)
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=28&duration=3000&pause=1000&color=00FF41&background=00000000&center=true&vCenter=true&multiline=false&repeat=true&width=700&height=60&lines=%3E+Hello%2C+World!+I'm+M.+Mahadi+%F0%9F%91%BE;%3E+Full-Stack+Dev+%7C+Competitive+Coder;%3E+Future+Software+Engineer+%40+Google+%F0%9F%9A%80;%3E+Bangladesh+%F0%9F%87%A7%F0%9F%87%A9+%7C+Hacking+my+way+up+%F0%9F%94%A5)](https://github.com/brownspy1)
 
 <br/>
 
@@ -129,7 +131,7 @@ Django      █████████░░░░░░░░░░░  45% [L
 <div align="center">
 
 <img src="https://github-readme-stats.vercel.app/api?username=brownspy1&show_icons=true&theme=chartreuse-dark&hide_border=true&bg_color=000000&title_color=00FF41&icon_color=FF00FF&text_color=00CC33&include_all_commits=true&count_private=true&rank_icon=github" alt="GitHub Stats" width="49%"/>
-<img src="https://github-readme-streak-stats.herokuapp.com/?user=brownspy1&theme=matrix&hide_border=true&background=000000&stroke=00FF41&ring=FF00FF&fire=FF4500&currStreakLabel=00FF41&sideLabels=00FF41&currStreakNum=FFFFFF&sideNums=FFFFFF&dates=00CC33" alt="GitHub Streak" width="49%"/>
+<img src="https://streak-stats.demolab.com?user=brownspy1&theme=neon-dark&hide_border=true&background=000000&stroke=00FF41&ring=FF00FF&fire=FF4500&currStreakLabel=00FF41&sideLabels=00FF41&currStreakNum=FFFFFF&sideNums=FFFFFF&dates=00CC33" alt="GitHub Streak" width="49%"/>
 
 <br/><br/>
 
@@ -172,6 +174,20 @@ Django      █████████░░░░░░░░░░░  45% [L
 ---
 
 <!-- ══════════════════════════════════════════════════════════
+     ACTIVITY GRAPH
+══════════════════════════════════════════════════════════ -->
+
+## `$ git log --graph --all`
+
+<div align="center">
+
+[![Activity Graph](https://github-readme-activity-graph.vercel.app/graph?username=brownspy1&bg_color=000000&color=00FF41&line=00FF41&point=FF00FF&area=true&hide_border=true&area_color=003300)](https://github.com/brownspy1)
+
+</div>
+
+---
+
+<!-- ══════════════════════════════════════════════════════════
      TOP CONTRIBUTED REPOS
 ══════════════════════════════════════════════════════════ -->
 
@@ -179,7 +195,7 @@ Django      █████████░░░░░░░░░░░  45% [L
 
 <div align="center">
 
-[![Top Repos](https://github-contributor-stats.vercel.app/api?username=brownspy1&limit=5&theme=tokyonight&combine_all_yearly_contributions=true)](https://github.com/brownspy1)
+[![Top Repos](https://github-contributor-stats.vercel.app/api?username=brownspy1&limit=5&theme=dark&combine_all_yearly_contributions=true)](https://github.com/brownspy1)
 
 </div>
 

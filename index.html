@@ -340,9 +340,9 @@
     <pre id="ascii-header"></pre>
     <hr class="divider">
     <div id="status-bar">
-      <span>SESSION: active</span>
+      <span>SESSION: active | uptime: <span id="uptime-display">0s</span></span>
       <span class="ping" id="clock-display"></span>
-      <span>OS: PortfolioOS v2.0</span>
+      <span id="weather-mini">🌍 BD</span>
     </div>
     <hr class="divider">
     <div id="output"></div>
@@ -399,16 +399,50 @@ document.addEventListener('mousemove', e => {
 });
 
 /* ═══════════════════════════════════════════
-   CLOCK
+   CLOCK + UPTIME
 ═══════════════════════════════════════════ */
+const sessionStart = Date.now();
+
 function updateClock() {
   const now = new Date();
   const t = now.toLocaleTimeString('en-US', { hour12: false });
   const el = document.getElementById('clock-display');
   if (el) el.textContent = `⏱ ${t}`;
+
+  // Uptime
+  const sec = Math.floor((Date.now() - sessionStart) / 1000);
+  const h = String(Math.floor(sec/3600)).padStart(2,'0');
+  const m = String(Math.floor((sec%3600)/60)).padStart(2,'0');
+  const s = String(sec%60).padStart(2,'0');
+  const up = document.getElementById('uptime-display');
+  if (up) up.textContent = `${h}:${m}:${s}`;
 }
 setInterval(updateClock, 1000);
 updateClock();
+
+/* ═══════════════════════════════════════════
+   LIVE WEATHER FETCH (wttr.in)
+═══════════════════════════════════════════ */
+async function fetchWeather() {
+  try {
+    const r = await fetch('https://wttr.in/Barisal?format=%C+%t', {cache:'no-store'});
+    const txt = await r.text();
+    const mini = document.getElementById('weather-mini');
+    if (mini) mini.textContent = `🌤 ${txt.trim()}`;
+    return txt.trim();
+  } catch(_) { return 'N/A'; }
+}
+fetchWeather();
+
+/* ═══════════════════════════════════════════
+   LIVE GITHUB STATS FETCH
+═══════════════════════════════════════════ */
+async function fetchGitHubStats() {
+  try {
+    const r = await fetch('https://api.github.com/users/brownspy1');
+    return await r.json();
+  } catch(_) { return null; }
+}
 
 /* ═══════════════════════════════════════════
    KEYBOARD CLICK SOUND
@@ -575,6 +609,10 @@ function launchTerminal() {
       case 'clear':      output.innerHTML = ''; printWelcome(); break;
       case 'exit':       cmdExit();      break;
       case 'sudo':       cmdSudo();      break;
+      case 'weather':    cmdWeather();   break;
+      case 'github':     cmdGitHub();    break;
+      case 'neofetch':   cmdNeofetch();  break;
+      case 'uptime':     cmdUptime();    break;
       case 'date':       printLine(`<span class="c-green">${new Date().toString()}</span>`); break;
       case 'echo':       printLine(`<span class="c-white">${escHtml(parts.slice(1).join(' '))}</span>`); break;
       case 'hack':       cmdHack();      break;
@@ -601,6 +639,10 @@ function launchTerminal() {
       ['contact',   'Contact information'],
       ['social',    'Social media links'],
       ['whoami',    'Current user info'],
+      ['github',    'Live GitHub profile stats 🔴LIVE'],
+      ['weather',   'Live weather in Barisal 🔴LIVE'],
+      ['neofetch',  'System info (hacker style)'],
+      ['uptime',    'Current session uptime'],
       ['ls',        'List portfolio sections'],
       ['clear',     'Clear the terminal'],
       ['date',      'Show current date & time'],
@@ -744,6 +786,74 @@ function launchTerminal() {
       : `<span class="c-white">${i}</span>`
     ).join('  '));
     printBlank();
+  }
+
+  /* ── NEW DYNAMIC COMMANDS ── */
+
+  async function cmdWeather() {
+    printLine(`<span class="c-dim">Fetching live weather for Barisal, Bangladesh...</span>`);
+    try {
+      const r = await fetch('https://wttr.in/Barisal?format=4', {cache:'no-store'});
+      const txt = await r.text();
+      printBlank();
+      printLine(`<span class="c-cyan bold">[ LIVE WEATHER — BARISAL 🇧🇩 ]</span>`);
+      txt.trim().split('\n').forEach(line => {
+        printLine(`  <span class="c-white">${escHtml(line)}</span>`);
+      });
+      printBlank();
+    } catch(e) {
+      printLine(`<span class="c-red">Error: Could not fetch weather. Check connection.</span>`);
+    }
+  }
+
+  async function cmdGitHub() {
+    printLine(`<span class="c-dim">Fetching live GitHub data for @brownspy1...</span>`);
+    const data = await fetchGitHubStats();
+    printBlank();
+    if (data) {
+      printLine(`<span class="c-green bold">╔═══ GITHUB LIVE STATS ════════════════════════╗</span>`);
+      printLine(`<span class="c-green">║</span>  <span class="c-amber">👤 Name       :</span> <span class="c-white">${escHtml(data.name || 'M. Mahadi')}</span>`);
+      printLine(`<span class="c-green">║</span>  <span class="c-amber">👥 Followers  :</span> <span class="c-cyan">${data.followers}</span>`);
+      printLine(`<span class="c-green">║</span>  <span class="c-amber">➡️  Following  :</span> <span class="c-cyan">${data.following}</span>`);
+      printLine(`<span class="c-green">║</span>  <span class="c-amber">📦 Repos      :</span> <span class="c-cyan">${data.public_repos}</span>`);
+      printLine(`<span class="c-green">║</span>  <span class="c-amber">⭐ Gists      :</span> <span class="c-cyan">${data.public_gists}</span>`);
+      printLine(`<span class="c-green">║</span>  <span class="c-amber">📍 Location   :</span> <span class="c-white">${escHtml(data.location || 'Bangladesh')}</span>`);
+      printLine(`<span class="c-green">║</span>  <span class="c-amber">📅 Joined     :</span> <span class="c-white">${new Date(data.created_at).toDateString()}</span>`);
+      printLine(`<span class="c-green bold">╚══════════════════════════════════════════════╝</span>`);
+    } else {
+      printLine(`<span class="c-red">Error: Could not reach GitHub API.</span>`);
+    }
+    printBlank();
+  }
+
+  function cmdNeofetch() {
+    const now = new Date();
+    const up = document.getElementById('uptime-display');
+    printBlank();
+    const art = [
+      `  <span class="c-green">███╗   ███╗</span>   <span class="c-amber bold">mahadi</span><span class="c-dim">@</span><span class="c-cyan bold">portfolio</span>`,
+      `  <span class="c-green">████╗ ████║</span>   <span class="c-dim">──────────────────────────</span>`,
+      `  <span class="c-green">██╔████╔██║</span>   <span class="c-amber">OS:</span>       <span class="c-white">PortfolioOS v2.0</span>`,
+      `  <span class="c-green">██║╚██╔╝██║</span>   <span class="c-amber">Host:</span>     <span class="c-white">GitHub Pages</span>`,
+      `  <span class="c-green">██║ ╚═╝ ██║</span>   <span class="c-amber">Shell:</span>    <span class="c-white">PortfolioBash 1.0</span>`,
+      `  <span class="c-green">╚═╝     ╚═╝</span>   <span class="c-amber">Uptime:</span>   <span class="c-white">${up ? up.textContent : '0:00:00'}</span>`,
+      `              <span class="c-amber">Location:</span> <span class="c-white">Barisal, Bangladesh 🇧🇩</span>`,
+      `              <span class="c-amber">Mission:</span>  <span class="c-white">Google SWE 🚀</span>`,
+      `              <span class="c-amber">Date:</span>     <span class="c-white">${now.toDateString()}</span>`,
+      `              <span class="c-dim">──────────────────────────</span>`,
+      `              <span style="color:#ff5f57">███</span><span style="color:#febc2e">███</span><span style="color:#28c840">███</span><span style="color:#00e5ff">███</span><span style="color:#9b59b6">███</span><span style="color:#ff00ff">███</span>`,
+    ];
+    art.forEach(line => printLine(line));
+    printBlank();
+  }
+
+  function cmdUptime() {
+    const sec = Math.floor((Date.now() - sessionStart) / 1000);
+    const h = Math.floor(sec/3600);
+    const m = Math.floor((sec%3600)/60);
+    const s = sec%60;
+    printLine(`<span class="c-green">Session uptime: </span><span class="c-cyan bold">${h}h ${m}m ${s}s</span>`);
+    printLine(`<span class="c-dim">Session started: ${new Date(sessionStart).toLocaleTimeString()}</span>`);
   }
 
   function cmdExit() {
