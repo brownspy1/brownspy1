@@ -93,20 +93,35 @@
     }
 
     /* ASCII header */
-    #asc {
-      font-family:'VT323',monospace;
-      font-size:1.25rem;
-      color:var(--g);
-      white-space:pre;
-      line-height:1.25;
-      margin-bottom:10px;
+    /* ASCII header — CSS styled name (no breakable art) */
+    #asc-wrap {
       text-align:center;
-      animation:glow 3s ease-in-out infinite alternate;
-      display:block;
+      margin-bottom:10px;
       opacity:0;
-      transition:opacity .5s ease;
+      animation:ascFade .8s ease .2s forwards;
     }
-    #asc.show { opacity:1; }
+    @keyframes ascFade {
+      from{opacity:0;transform:translateY(-6px);}
+      to{opacity:1;transform:none;}
+    }
+    #asc-name {
+      font-family:'VT323',monospace;
+      font-size:clamp(2rem, 7vw, 3.8rem);
+      color:var(--g);
+      letter-spacing:clamp(4px,1vw,14px);
+      display:block;
+      line-height:1;
+      animation:glow 3s ease-in-out infinite alternate;
+    }
+    #asc-sub {
+      font-family:'Share Tech Mono',monospace;
+      font-size:clamp(.6rem,.9vw,.78rem);
+      color:var(--gd);
+      letter-spacing:clamp(1px,.5vw,3px);
+      margin-top:4px;
+      display:block;
+      opacity:.8;
+    }
     @keyframes glow {
       from{text-shadow:0 0 8px var(--gg);}
       to{text-shadow:0 0 22px var(--gg),0 0 45px rgba(0,255,65,.25);}
@@ -189,7 +204,11 @@
     <span id="tbar-title">mahadi@portfolio ~ bash</span>
   </div>
   <div id="term">
-    <pre id="asc"></pre>
+    <!-- Name header — pure CSS, never breaks -->
+    <div id="asc-wrap">
+      <span id="asc-name">M. MAHADI</span>
+      <span id="asc-sub">Full-Stack Dev &nbsp;|&nbsp; Competitive Programmer &nbsp;|&nbsp; Bangladesh &#127487;&#127465;</span>
+    </div>
     <hr class="dv">
     <div id="sbar">
       <span>SESSION:<span id="s-up" class="live"> 00:00:00</span></span>
@@ -329,43 +348,15 @@ setTimeout(()=>{
 },1900);
 
 /* ═══════ ASCII HEADER ═══════ */
-const ASCII=
-`  __  __   _   _  _   _   _   ___  _
- |  \/  | /_\ | || || /_\ |  \ |_ _|
- | |\/| |/ _ \| __ |/ _ \| |) | | |
- |_|  |_/_/ \_\_||_/_/ \_\|___/ |___|
-`;
-
 /* ═══════════════════════════════════════════════
-   TERMINAL ENGINE — DOM-BASED (no raw HTML strings)
+   TERMINAL ENGINE — DOM-BASED
 ═══════════════════════════════════════════════ */
 function startTerminal(){
-  const asc=document.getElementById('asc');
   const OUT=document.getElementById('out');
   const INP=document.getElementById('inp');
 
-  // Set ASCII art text immediately (no typewriter — prevents misalignment)
-  asc.textContent=ASCII;
-
-  // Auto-scale font to fit terminal width
-  function scaleAscii(){
-    asc.style.fontSize='';
-    const maxW=asc.parentElement.clientWidth - 44;
-    // measure natural width
-    const naturalW=asc.scrollWidth;
-    if(naturalW > maxW){
-      const ratio=maxW/naturalW;
-      const base=parseFloat(getComputedStyle(asc).fontSize);
-      asc.style.fontSize=(base*ratio)+'px';
-    }
-    asc.classList.add('show'); // fade in after sizing
-  }
-  // slight delay to let DOM settle
-  setTimeout(scaleAscii, 50);
-  window.addEventListener('resize', scaleAscii);
-
-  // Welcome after art fades in
-  setTimeout(welcome, 600);
+  // Welcome message after header fades in
+  setTimeout(welcome, 800);
 
   let hist=[],hIdx=-1;
 
