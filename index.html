@@ -109,8 +109,9 @@
     #sbar {
       display:flex;justify-content:space-between;align-items:center;
       font-size:.7rem;color:#3a7a3a;padding:3px 0;letter-spacing:1px;
-      flex-wrap:wrap;gap:4px;
+      flex-wrap:nowrap;gap:8px;overflow:hidden;
     }
+    #sbar span { white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
     #sbar .live { color:var(--am); }
 
     /* Output */
@@ -255,14 +256,22 @@ function tick(){
 }
 setInterval(tick,1e3);tick();
 
-/* ═══════ LIVE WEATHER ═══════ */
+/* ═══════ LIVE WEATHER (JSON API — no HTML response) ═══════ */
 let weatherCache=null;
 async function loadWeather(){
   try{
-    const r=await fetch('https://wttr.in/Barisal?format=%C+%t&lang=en',{cache:'no-store'});
-    weatherCache=await r.text();
-    document.getElementById('s-weather').textContent='🌤 '+weatherCache.trim();
-  }catch(e){document.getElementById('s-weather').textContent='🌍 Barisal, BD';}
+    // Use JSON API to avoid wttr.in returning HTML page
+    const r=await fetch('https://wttr.in/Barisal?format=j1',{cache:'no-store'});
+    const j=await r.json();
+    const c=j.current_condition[0];
+    const desc=c.weatherDesc[0].value;
+    const temp=c.temp_C;
+    const feels=c.FeelsLikeC;
+    weatherCache={desc,temp,feels,humidity:c.humidity,wind:c.windspeedKmph};
+    document.getElementById('s-weather').textContent=`🌤 ${desc} ${temp}°C`;
+  }catch(e){
+    document.getElementById('s-weather').textContent='🌍 Barisal, BD';
+  }
 }
 loadWeather();
 
@@ -776,23 +785,38 @@ function startTerminal(){
   }
 
   async function cmdWeather(){
-    const wait=row(sp('Fetching live weather for Barisal, BD','cdm'),sp('','cdm spin'));
+    const wait=row(sp('Fetching live weather for Barisal, BD...','cdm'));
     try{
-      const r=await fetch('https://wttr.in/Barisal?format=4',{cache:'no-store'});
-      const txt=await r.text();
+      // Always use JSON API to avoid HTML response
+      if(!weatherCache) await loadWeather();
       OUT.removeChild(wait);
       br();
       row(sp('[ LIVE WEATHER — BARISAL, BANGLADESH 🇧🇩 ]','ccy bold'));
       br();
-      txt.trim().split('\n').forEach(line=>{
-        row(sp('  '+line,'cwh'));
-      });
+      if(weatherCache && typeof weatherCache==='object'){
+        const wLines=[
+          ['🌡  Condition  :',weatherCache.desc],
+          ['🌡  Temp       :',weatherCache.temp+'°C  (Feels like '+weatherCache.feels+'°C)'],
+          ['💧 Humidity   :',weatherCache.humidity+'%'],
+          ['💨 Wind Speed :',weatherCache.wind+' km/h'],
+        ];
+        wLines.forEach(([k,v])=>{
+          const p=document.createElement('p');
+          p.classList.add('ani');
+          p.appendChild(sp('  ',''));
+          p.appendChild(sp(k,'cam'));
+          p.appendChild(sp(' '+v,'cwh'));
+          OUT.appendChild(p);OUT.scrollTop=OUT.scrollHeight;
+        });
+      } else {
+        row(sp('  Data unavailable. Try again later.','cdm'));
+      }
       br();
-      row(sp('Data from: ','cdm'),lnk('wttr.in','https://wttr.in/Barisal'));
+      row(sp('Source: ','cdm'),lnk('wttr.in/Barisal','https://wttr.in/Barisal'));
       br();
     }catch(e){
-      OUT.removeChild(wait);
-      row(sp('Error: Weather API unreachable. Check connection.','crd'));
+      try{OUT.removeChild(wait);}catch(_){}
+      row(sp('Error: Weather API unreachable.','crd'));
     }
   }
 
