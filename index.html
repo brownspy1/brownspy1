@@ -3,248 +3,789 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>M. Mahadi's Portfolio Console</title>
+  <title>M. Mahadi | Portfolio Terminal</title>
+  <meta name="description" content="M. Mahadi's interactive terminal portfolio — Full-stack developer, competitive programmer, and CS student from Bangladesh.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+
   <style>
-    /* Global styles */
+    :root {
+      --green: #00ff41;
+      --green-dim: #00cc33;
+      --green-glow: rgba(0, 255, 65, 0.6);
+      --green-faint: rgba(0, 255, 65, 0.08);
+      --bg: #000a00;
+      --amber: #ffb300;
+      --red: #ff3333;
+      --cyan: #00e5ff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #001100; }
+    ::-webkit-scrollbar-thumb { background: var(--green-dim); border-radius: 3px; }
+
+    /* ── BODY ── */
     body {
-      background-color: #000;
-      color: #0F0;
-      font-family: 'Courier New', Courier, monospace;
+      background: var(--bg);
+      color: var(--green);
+      font-family: 'Share Tech Mono', monospace;
+      min-height: 100vh;
       display: flex;
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      cursor: none; /* Hide cursor for console effect */
-      overflow: hidden; /* Prevent scrolling */
-      perspective: 1000px; /* For console glass effect */
+      overflow: hidden;
+      cursor: none;
+      position: relative;
     }
 
-    /* Mouse tracking background effect */
-    body::before {
-      content: '';
+    /* ── MATRIX CANVAS ── */
+    #matrix-canvas {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      opacity: 0.18;
+    }
+
+    /* ── CRT SCANLINES OVERLAY ── */
+    #crt-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 1;
       pointer-events: none;
-      background:
-        radial-gradient(circle closest-side, #0F0, transparent 50%),
-        radial-gradient(circle closest-side, #00F, transparent 50%),
-        radial-gradient(circle closest-side, #F0F, transparent 50%);
-      background-size: 300% 300%;
-      background-position: 50% 50%; /* Center initially */
-      transition: background-position 0.1s ease-out;
-      z-index: -1;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.15) 2px,
+        rgba(0,0,0,0.15) 4px
+      );
+      animation: crtFlicker 8s infinite;
     }
 
-    /* Console styles */
-    .console {
-      width: 600px;
-      background-color: rgba(0, 0, 0, 0.6); /* Transparent background for glass effect */
-      border: 2px solid #0F0;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-      transform: rotateX(20deg); /* Console glass tilt effect */
-      position: relative; /* Required for child element positioning */
-      overflow: hidden; /* Prevents background overflow */
+    @keyframes crtFlicker {
+      0%, 97%, 100% { opacity: 1; }
+      98% { opacity: 0.85; }
+      99% { opacity: 0.95; }
     }
 
-    .header {
-      margin-bottom: 10px;
+    /* ── CUSTOM CURSOR ── */
+    #cursor {
+      position: fixed;
+      width: 10px;
+      height: 18px;
+      background: var(--green);
+      z-index: 9999;
+      pointer-events: none;
+      animation: blink 1s step-end infinite;
+      box-shadow: 0 0 8px var(--green-glow);
+      transform: translate(-2px, -2px);
     }
 
-    .title {
-      color: #0F0;
-      font-size: 1.2rem;
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
     }
 
-    .content {
-      border: 1px solid #0F0;
-      padding: 10px;
-      border-radius: 4px;
-      min-height: 200px;
-      overflow-y: auto;
+    /* ── MAIN TERMINAL WRAPPER ── */
+    #terminal-wrapper {
+      position: relative;
+      z-index: 10;
+      width: 90%;
+      max-width: 780px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
-    .input-line {
+    /* ── TITLE BAR ── */
+    #title-bar {
       display: flex;
       align-items: center;
-      margin-top: 10px;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(0, 255, 65, 0.06);
+      border: 1px solid var(--green-dim);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.15);
     }
 
-    .prompt {
-      color: #0F0;
-      font-size: 1.2rem;
-      margin-right: 5px;
+    .dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+    }
+    .dot.red   { background: #ff5f57; box-shadow: 0 0 6px #ff5f57; }
+    .dot.yellow{ background: #febc2e; box-shadow: 0 0 6px #febc2e; }
+    .dot.green { background: #28c840; box-shadow: 0 0 6px #28c840; }
+
+    #title-bar span {
+      margin-left: auto;
+      font-size: 0.85rem;
+      color: var(--green-dim);
+      letter-spacing: 2px;
     }
 
-    #command-input {
-      background-color: transparent;
+    /* ── TERMINAL BODY ── */
+    #terminal {
+      background: rgba(0, 8, 0, 0.88);
+      border: 1px solid var(--green-dim);
+      border-radius: 0 0 8px 8px;
+      padding: 20px 24px;
+      box-shadow:
+        0 0 40px rgba(0, 255, 65, 0.2),
+        0 0 80px rgba(0, 255, 65, 0.05),
+        inset 0 0 30px rgba(0, 255, 65, 0.03);
+      height: 75vh;
+      max-height: 600px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── ASCII HEADER ── */
+    #ascii-header {
+      font-family: 'VT323', monospace;
+      font-size: 1.3rem;
+      color: var(--green);
+      text-shadow: 0 0 10px var(--green-glow);
+      white-space: pre;
+      line-height: 1.2;
+      margin-bottom: 12px;
+      animation: headerGlow 3s ease-in-out infinite alternate;
+      overflow-x: auto;
+    }
+
+    @keyframes headerGlow {
+      from { text-shadow: 0 0 8px var(--green-glow); }
+      to   { text-shadow: 0 0 20px var(--green-glow), 0 0 40px rgba(0,255,65,0.3); }
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
       border: none;
-      color: #0F0;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 1.2rem;
-      width: calc(100% - 20px);
-      outline: none;
+      border-top: 1px solid rgba(0, 255, 65, 0.25);
+      margin: 8px 0;
     }
 
-    #command-input:focus {
+    /* ── OUTPUT AREA ── */
+    #output {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 6px;
+      scroll-behavior: smooth;
+    }
+
+    #output p, #output div {
+      margin: 3px 0;
+      line-height: 1.6;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-4px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ── COLORS IN OUTPUT ── */
+    .c-green  { color: var(--green); }
+    .c-amber  { color: var(--amber); }
+    .c-cyan   { color: var(--cyan); }
+    .c-red    { color: var(--red); }
+    .c-dim    { color: #5a9e5a; }
+    .c-white  { color: #ccffcc; }
+
+    .bold     { font-weight: bold; }
+    .glitch   {
+      animation: glitch 0.4s linear;
+    }
+
+    @keyframes glitch {
+      0%  { text-shadow: 2px 0 var(--cyan), -2px 0 var(--red); }
+      25% { text-shadow: -2px 0 var(--cyan), 2px 0 var(--red); }
+      50% { text-shadow: 2px 2px var(--cyan), -2px -2px var(--red); }
+      75% { text-shadow: 0 0 var(--green); }
+      100%{ text-shadow: none; }
+    }
+
+    .link-tag {
+      color: var(--cyan);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .link-tag:hover { color: #fff; text-shadow: 0 0 8px var(--cyan); }
+
+    /* ── INPUT ROW ── */
+    #input-row {
+      display: flex;
+      align-items: center;
+      margin-top: 12px;
+      gap: 6px;
+      border-top: 1px solid rgba(0, 255, 65, 0.15);
+      padding-top: 10px;
+    }
+
+    #prompt-label {
+      color: var(--green);
+      font-size: 1.1rem;
+      white-space: nowrap;
+      text-shadow: 0 0 6px var(--green-glow);
+    }
+
+    #cmd-input {
+      flex: 1;
+      background: transparent;
       border: none;
+      color: var(--green);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.1rem;
       outline: none;
+      caret-color: var(--green);
+      text-shadow: 0 0 4px var(--green-glow);
     }
 
-    .output p {
-      margin: 5px 0;
-    }
-
-    /* Instructions styles */
-    .instructions {
+    /* ── BOOT SEQUENCE ── */
+    #boot-screen {
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -230%);
-      background-color: rgba(0, 255, 0, 0.1);
-      padding: 10px;
-      border-radius: 4px;
-      box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-      z-index: 999;
+      inset: 0;
+      background: #000;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--green);
+      font-size: 1rem;
     }
 
-    .instructions h3 {
-      color: #0F0;
-      font-size: 1.2rem;
-      margin-bottom: 5px;
+    #boot-log {
+      width: 500px;
+      max-width: 90%;
+      line-height: 2;
     }
 
-    .instructions ul {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
+    #boot-log .ok  { color: #28c840; }
+    #boot-log .err { color: var(--red); }
+
+    /* ── STATUS BAR ── */
+    #status-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: #3a7a3a;
+      padding: 4px 0;
+      letter-spacing: 1px;
     }
 
-    .instructions li {
-      margin-bottom: 5px;
+    #status-bar .ping { color: var(--amber); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      #ascii-header { font-size: 0.75rem; }
+      #terminal { padding: 12px 14px; }
+      #terminal-wrapper { width: 98%; }
+    }
+
+    /* ── PROGRESS BAR (boot) ── */
+    #boot-progress-bar {
+      width: 500px; max-width: 90%;
+      height: 4px;
+      background: #001800;
+      margin-top: 20px;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    #boot-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green-glow);
+      transition: width 0.1s linear;
     }
   </style>
 </head>
-<body onmousemove="handleMouseMove(event)" onmouseenter="changeMouseStyle(true)" onmouseleave="changeMouseStyle(false)">
-  <div class="instructions">
-    <h3>Instructions:</h3>
-    <ul>
-      <li>Type a command in the console input below.</li>
-      <li>Available commands: help, about, skills, projects, contact, exit.</li>
-      <li>Press Enter to execute a command.</li>
-      <li>Output will appear in the console area.</li>
-      <li>Enjoy exploring M. Mahadi's portfolio!</li>
-    </ul>
+<body>
+
+<!-- Custom Cursor -->
+<div id="cursor"></div>
+
+<!-- Matrix Canvas -->
+<canvas id="matrix-canvas"></canvas>
+
+<!-- CRT Overlay -->
+<div id="crt-overlay"></div>
+
+<!-- Boot Screen -->
+<div id="boot-screen">
+  <div id="boot-log"></div>
+  <div id="boot-progress-bar"><div id="boot-progress-fill"></div></div>
+</div>
+
+<!-- Terminal -->
+<div id="terminal-wrapper" style="display:none;">
+  <div id="title-bar">
+    <div class="dot red"></div>
+    <div class="dot yellow"></div>
+    <div class="dot green"></div>
+    <span>mahadi@portfolio ~ bash</span>
   </div>
-
-  <div class="console" id="console">
-    <div class="header">
-      <span class="title">>> Welcome to M. Mahadi's Portfolio Console <<</span>
+  <div id="terminal">
+    <pre id="ascii-header"></pre>
+    <hr class="divider">
+    <div id="status-bar">
+      <span>SESSION: active</span>
+      <span class="ping" id="clock-display"></span>
+      <span>OS: PortfolioOS v2.0</span>
     </div>
-    <div class="content">
-      <div class="output"></div>
-      <div class="input-line">
-        <span class="prompt">$</span>
-        <input type="text" id="command-input" autocomplete="off" autofocus>
-      </div>
+    <hr class="divider">
+    <div id="output"></div>
+    <div id="input-row">
+      <span id="prompt-label">mahadi@portfolio:~$</span>
+      <input type="text" id="cmd-input" autocomplete="off" spellcheck="false" aria-label="Terminal command input">
     </div>
   </div>
+</div>
 
-  <script>
-    // Function to handle mouse move event and update background position
-    function handleMouseMove(event) {
-      const consoleElement = document.getElementById('console');
-      const mouseX = event.clientX;
-      const mouseY = event.clientY;
+<script>
+/* ═══════════════════════════════════════════
+   MATRIX RAIN
+═══════════════════════════════════════════ */
+(function matrixRain() {
+  const canvas = document.getElementById('matrix-canvas');
+  const ctx = canvas.getContext('2d');
+  const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+  let cols, drops;
+  const fontSize = 14;
 
-      // Calculate background position based on mouse coordinates
-      const bgPositionX = (mouseX / window.innerWidth) * 100 - 50;
-      const bgPositionY = (mouseY / window.innerHeight) * 100 - 50;
+  function init() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    cols  = Math.floor(canvas.width / fontSize);
+    drops = Array(cols).fill(1);
+  }
 
-      // Apply styles to console background
-      consoleElement.style.backgroundPosition = `${bgPositionX}% ${bgPositionY}%`;
-    }
-
-    // Function to change mouse cursor style
-    function changeMouseStyle(enter) {
-      document.body.style.cursor = enter ? 'pointer' : 'default';
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      const input = document.getElementById('command-input');
-      const output = document.querySelector('.output');
-
-      input.addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-          const command = input.value.trim().toLowerCase();
-          input.value = '';
-
-          handleCommand(command);
-        }
-      });
-
-      function handleCommand(command) {
-        // Clear previous output
-        output.innerHTML = '';
-
-        switch (command) {
-          case 'help':
-            output.innerHTML += "<p>Available Commands:<br>"
-                              + " - help : Show available commands<br>"
-                              + " - about : Display information about M. Mahadi<br>"
-                              + " - skills : List programming skills<br>"
-                              + " - projects : View list of projects<br>"
-                              + " - contact : Display contact information<br>"
-                              + " - exit : Exit the portfolio console</p>";
-            break;
-          case 'about':
-            output.innerHTML += "<p>> About M. Mahadi <<br>"
-                              + "Name: M. Mahadi<br>"
-                              + "Passion: Full-time programming learner, competitive programmer<br>"
-                              + "Future Goal: Software Engineer at Google</p>";
-            break;
-          case 'skills':
-            output.innerHTML += "<p>> Programming Skills <<br>"
-                              + "- Python<br>"
-                              + "- Java<br>"
-                              + "- C++<br>"
-                              + "- HTML/CSS<br>"
-                              + "- JavaScript</p>";
-            break;
-          case 'projects':
-            output.innerHTML += "<p>> Projects <<br>"
-                              + "1. Project A - Description<br>"
-                              + "2. Project B - Description</p>";
-            break;
-          case 'contact':
-            output.innerHTML += "<p>> Contact Information <<br>"
-                              + "Name: M. Mahadi<br>"
-                              + "Number: +8801732657219<br>"
-                              + "Email: mh0643893@gmail.com<br>"
-                              + "Facebook: @brownspy2<br>"
-                              + "GitHub: @brownspy1</p>";
-            break;
-          case 'exit':
-            output.innerHTML += "<p>Exiting...</p>";
-            setTimeout(() => {
-              window.close();
-            }, 1000);
-            break;
-          default:
-            output.innerHTML += `<p>Command '${command}' not found. Type 'help' for available commands.</p>`;
-        }
-        scrollToBottom();
-      }
-
-      function scrollToBottom() {
-        output.scrollTop = output.scrollHeight;
-      }
+  function draw() {
+    ctx.fillStyle = 'rgba(0, 8, 0, 0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#00ff41';
+    ctx.font = `${fontSize}px monospace`;
+    drops.forEach((y, i) => {
+      const ch = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(ch, i * fontSize, y * fontSize);
+      if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
     });
-  </script>
+  }
+
+  init();
+  window.addEventListener('resize', init);
+  setInterval(draw, 45);
+})();
+
+/* ═══════════════════════════════════════════
+   CUSTOM CURSOR
+═══════════════════════════════════════════ */
+const cursorEl = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursorEl.style.left = e.clientX + 'px';
+  cursorEl.style.top  = e.clientY + 'px';
+});
+
+/* ═══════════════════════════════════════════
+   CLOCK
+═══════════════════════════════════════════ */
+function updateClock() {
+  const now = new Date();
+  const t = now.toLocaleTimeString('en-US', { hour12: false });
+  const el = document.getElementById('clock-display');
+  if (el) el.textContent = `⏱ ${t}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ═══════════════════════════════════════════
+   KEYBOARD CLICK SOUND
+═══════════════════════════════════════════ */
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx;
+
+function playClick() {
+  try {
+    if (!audioCtx) audioCtx = new AudioCtx();
+    const osc  = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.03);
+    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.06);
+  } catch(_) {}
+}
+
+/* ═══════════════════════════════════════════
+   BOOT SEQUENCE
+═══════════════════════════════════════════ */
+const bootLines = [
+  { text: '[  OK  ] Loading kernel modules...', cls: 'ok', delay: 0 },
+  { text: '[  OK  ] Mounting filesystem...', cls: 'ok', delay: 180 },
+  { text: '[  OK  ] Initializing network interface...', cls: 'ok', delay: 320 },
+  { text: '[  OK  ] Starting SSH daemon...', cls: 'ok', delay: 480 },
+  { text: '[  OK  ] Authenticating user: mahadi', cls: 'ok', delay: 640 },
+  { text: '[  OK  ] Loading portfolio modules...', cls: 'ok', delay: 820 },
+  { text: '[  OK  ] Decrypting skills.db...', cls: 'ok', delay: 1000 },
+  { text: '[  OK  ] Rendering terminal interface...', cls: 'ok', delay: 1200 },
+  { text: '[  OK  ] PortfolioOS v2.0 ready.', cls: 'ok', delay: 1450 },
+];
+
+const bootLog  = document.getElementById('boot-log');
+const bootFill = document.getElementById('boot-progress-fill');
+
+bootLines.forEach((line, i) => {
+  setTimeout(() => {
+    const p  = document.createElement('p');
+    p.innerHTML = `<span class="${line.cls}">${line.text}</span>`;
+    bootLog.appendChild(p);
+    bootFill.style.width = `${((i + 1) / bootLines.length) * 100}%`;
+  }, line.delay);
+});
+
+setTimeout(() => {
+  document.getElementById('boot-screen').style.display = 'none';
+  document.getElementById('terminal-wrapper').style.display = 'flex';
+  launchTerminal();
+}, 2200);
+
+/* ═══════════════════════════════════════════
+   ASCII HEADER
+═══════════════════════════════════════════ */
+const ASCII = `
+ ███╗   ███╗ █████╗ ██╗  ██╗ █████╗ ██████╗ ██╗
+ ████╗ ████║██╔══██╗██║  ██║██╔══██╗██╔══██╗██║
+ ██╔████╔██║███████║███████║███████║██║  ██║██║
+ ██║╚██╔╝██║██╔══██║██╔══██║██╔══██║██║  ██║██║
+ ██║ ╚═╝ ██║██║  ██║██║  ██║██║  ██║██████╔╝██║
+ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝ ╚═╝`.trimStart();
+
+/* ═══════════════════════════════════════════
+   TERMINAL LOGIC
+═══════════════════════════════════════════ */
+function launchTerminal() {
+  // ASCII header typewriter
+  const header = document.getElementById('ascii-header');
+  let hIdx = 0;
+  const hInterval = setInterval(() => {
+    header.textContent += ASCII[hIdx++];
+    if (hIdx >= ASCII.length) {
+      clearInterval(hInterval);
+      printWelcome();
+    }
+  }, 4);
+
+  const output = document.getElementById('output');
+  const input  = document.getElementById('cmd-input');
+
+  // Command history
+  let history = [];
+  let histIdx  = -1;
+
+  // Focus input on click anywhere
+  document.getElementById('terminal').addEventListener('click', () => input.focus());
+  input.focus();
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const cmd = input.value.trim();
+      if (cmd) {
+        history.unshift(cmd);
+        histIdx = -1;
+        printLine(`<span class="c-green bold">mahadi@portfolio:~$</span> <span class="c-white">${escHtml(cmd)}</span>`);
+        playClick();
+        handleCommand(cmd.toLowerCase());
+        input.value = '';
+        scrollBottom();
+      }
+    } else if (e.key === 'ArrowUp') {
+      if (histIdx < history.length - 1) { histIdx++; input.value = history[histIdx]; }
+      e.preventDefault();
+    } else if (e.key === 'ArrowDown') {
+      if (histIdx > 0) { histIdx--; input.value = history[histIdx]; }
+      else { histIdx = -1; input.value = ''; }
+      e.preventDefault();
+    } else {
+      playClick();
+    }
+  });
+
+  /* ── HELPERS ── */
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function printLine(html, extraClass = '') {
+    const p = document.createElement('p');
+    p.innerHTML = html;
+    if (extraClass) p.classList.add(extraClass);
+    output.appendChild(p);
+    scrollBottom();
+  }
+
+  function printBlank() { printLine('&nbsp;'); }
+
+  function scrollBottom() {
+    output.scrollTop = output.scrollHeight;
+  }
+
+  /* ── WELCOME MESSAGE ── */
+  function printWelcome() {
+    printBlank();
+    printLine(`<span class="c-amber bold">╔══════════════════════════════════════════════╗</span>`);
+    printLine(`<span class="c-amber bold">║</span>  Welcome to <span class="c-green bold">M. Mahadi's</span> Portfolio Terminal  <span class="c-amber bold">║</span>`);
+    printLine(`<span class="c-amber bold">╚══════════════════════════════════════════════╝</span>`);
+    printBlank();
+    printLine(`<span class="c-dim">Type </span><span class="c-cyan bold">help</span><span class="c-dim"> to see all available commands.</span>`);
+    printBlank();
+  }
+
+  /* ── COMMAND ROUTER ── */
+  function handleCommand(cmd) {
+    const parts = cmd.split(' ');
+    const base  = parts[0];
+
+    switch(base) {
+      case 'help':       cmdHelp();      break;
+      case 'about':      cmdAbout();     break;
+      case 'skills':     cmdSkills();    break;
+      case 'projects':   cmdProjects();  break;
+      case 'contact':    cmdContact();   break;
+      case 'education':  cmdEducation(); break;
+      case 'social':     cmdSocial();    break;
+      case 'whoami':     cmdWhoami();    break;
+      case 'ls':         cmdLs();        break;
+      case 'clear':      output.innerHTML = ''; printWelcome(); break;
+      case 'exit':       cmdExit();      break;
+      case 'sudo':       cmdSudo();      break;
+      case 'date':       printLine(`<span class="c-green">${new Date().toString()}</span>`); break;
+      case 'echo':       printLine(`<span class="c-white">${escHtml(parts.slice(1).join(' '))}</span>`); break;
+      case 'hack':       cmdHack();      break;
+      case '':           break;
+      default:
+        printLine(`<span class="c-red">bash: ${escHtml(cmd)}: command not found</span>`);
+        printLine(`<span class="c-dim">Type <span class="c-cyan">help</span> for available commands.</span>`);
+    }
+  }
+
+  /* ════════════════
+     COMMANDS
+  ════════════════ */
+
+  function cmdHelp() {
+    printBlank();
+    printLine(`<span class="c-amber bold">┌─ Available Commands ──────────────────────────┐</span>`);
+    const cmds = [
+      ['help',      'Show this help menu'],
+      ['about',     'About M. Mahadi'],
+      ['skills',    'Programming skills & tech stack'],
+      ['projects',  'View projects'],
+      ['education', 'Educational background'],
+      ['contact',   'Contact information'],
+      ['social',    'Social media links'],
+      ['whoami',    'Current user info'],
+      ['ls',        'List portfolio sections'],
+      ['clear',     'Clear the terminal'],
+      ['date',      'Show current date & time'],
+      ['echo [txt]','Print text to terminal'],
+      ['hack',      'Try something fun 😈'],
+      ['exit',      'Close session'],
+    ];
+    cmds.forEach(([c,d]) => {
+      printLine(`<span class="c-amber">│</span>  <span class="c-cyan bold">${c.padEnd(12)}</span><span class="c-dim">→ ${d}</span>`);
+    });
+    printLine(`<span class="c-amber bold">└───────────────────────────────────────────────┘</span>`);
+    printBlank();
+  }
+
+  function cmdAbout() {
+    printBlank();
+    printLine(`<span class="c-green bold">╔═══ ABOUT ═══════════════════════════════════╗</span>`);
+    printLine(`<span class="c-green">║</span>  <span class="c-amber bold">Name     :</span> <span class="c-white">M. Mahadi (Md. Mahadi Hasan)</span>`);
+    printLine(`<span class="c-green">║</span>  <span class="c-amber bold">Role     :</span> <span class="c-white">Full-Stack Developer & Competitive Programmer</span>`);
+    printLine(`<span class="c-green">║</span>  <span class="c-amber bold">Location :</span> <span class="c-white">Bangladesh 🇧🇩</span>`);
+    printLine(`<span class="c-green">║</span>  <span class="c-amber bold">Mission  :</span> <span class="c-white">Software Engineer at Google</span>`);
+    printLine(`<span class="c-green">║</span>  <span class="c-amber bold">Learning :</span> <span class="c-white">Django, Data Structures & Algorithms</span>`);
+    printLine(`<span class="c-green">║</span>  <span class="c-amber bold">Fun Fact :</span> <span class="c-white">Great sense of humor. Will make you laugh 😂</span>`);
+    printLine(`<span class="c-green bold">╚══════════════════════════════════════════════╝</span>`);
+    printBlank();
+  }
+
+  function cmdSkills() {
+    printBlank();
+    printLine(`<span class="c-cyan bold">[ PROGRAMMING LANGUAGES ]</span>`);
+    const langs = [
+      ['Python',     '████████████████████', 90],
+      ['C / C++',    '██████████████████░░', 85],
+      ['Java',       '████████████████░░░░', 75],
+      ['JavaScript', '███████████████░░░░░', 70],
+      ['HTML / CSS', '████████████████████', 95],
+    ];
+    langs.forEach(([lang, bar, pct]) => {
+      printLine(`  <span class="c-white">${lang.padEnd(14)}</span> <span class="c-green">${bar}</span> <span class="c-amber">${pct}%</span>`);
+    });
+    printBlank();
+    printLine(`<span class="c-cyan bold">[ TOOLS & FRAMEWORKS ]</span>`);
+    const tools = ['Git', 'Django', 'Bootstrap', 'Linux', 'VS Code', 'Photoshop', 'Illustrator'];
+    printLine(`  <span class="c-white">${tools.map(t => `<span class="c-dim">[</span><span class="c-green">${t}</span><span class="c-dim">]</span>`).join(' ')}</span>`);
+    printBlank();
+  }
+
+  function cmdProjects() {
+    printBlank();
+    printLine(`<span class="c-amber bold">[ PROJECTS ]</span>`);
+    printBlank();
+    const projects = [
+      {
+        num: '01',
+        name: 'Portfolio Terminal',
+        desc: 'Interactive CLI-style portfolio website',
+        tech: 'HTML, CSS, JavaScript',
+        status: 'LIVE',
+      },
+      {
+        num: '02',
+        name: 'Competitive Solutions',
+        desc: 'Collection of algorithm & DS solutions',
+        tech: 'C++, Python',
+        status: 'ACTIVE',
+      },
+      {
+        num: '03',
+        name: 'Django Web App',
+        desc: 'Full-stack web application (WIP)',
+        tech: 'Python, Django, SQLite',
+        status: 'WIP',
+      },
+    ];
+    projects.forEach(p => {
+      const statusColor = p.status === 'LIVE' ? 'c-green' : p.status === 'WIP' ? 'c-amber' : 'c-cyan';
+      printLine(`<span class="c-cyan bold"> [${p.num}]</span> <span class="c-white bold">${p.name}</span>  <span class="${statusColor}">[${p.status}]</span>`);
+      printLine(`      <span class="c-dim">→ ${p.desc}</span>`);
+      printLine(`      <span class="c-dim">Tech: </span><span class="c-green">${p.tech}</span>`);
+      printBlank();
+    });
+    printLine(`<span class="c-dim">See all projects: </span><span class="c-cyan link-tag" onclick="window.open('https://brownspy1.github.io/brownspy1/','_blank')">https://brownspy1.github.io/brownspy1/</span>`);
+    printBlank();
+  }
+
+  function cmdEducation() {
+    printBlank();
+    printLine(`<span class="c-green bold">[ EDUCATION ]</span>`);
+    printBlank();
+    printLine(`  <span class="c-amber bold">🎓 Diploma in Computer Science</span>`);
+    printLine(`  <span class="c-dim">   Institution :</span> <span class="c-white">Barisal Polytechnic Institute</span>`);
+    printLine(`  <span class="c-dim">   Duration    :</span> <span class="c-white">4 Semesters (Ongoing)</span>`);
+    printLine(`  <span class="c-dim">   Focus       :</span> <span class="c-white">Programming, Algorithms, Networking</span>`);
+    printBlank();
+    printLine(`  <span class="c-cyan link-tag" onclick="window.open('https://www.barishalpoly.gov.bd/','_blank')">Visit Institution →</span>`);
+    printBlank();
+  }
+
+  function cmdContact() {
+    printBlank();
+    printLine(`<span class="c-amber bold">╔═══ CONTACT ══════════════════════════════════╗</span>`);
+    printLine(`<span class="c-amber">║</span>  <span class="c-green">📛 Name    :</span> <span class="c-white">M. Mahadi</span>`);
+    printLine(`<span class="c-amber">║</span>  <span class="c-green">📱 Phone   :</span> <span class="c-cyan link-tag" onclick="window.open('tel:+8801732657219')">+880 1732 657219</span>`);
+    printLine(`<span class="c-amber">║</span>  <span class="c-green">📧 Email   :</span> <span class="c-cyan link-tag" onclick="window.open('mailto:mh0643893@gmail.com')">mh0643893@gmail.com</span>`);
+    printLine(`<span class="c-amber">║</span>  <span class="c-green">📧 Alt     :</span> <span class="c-cyan link-tag" onclick="window.open('mailto:brownspy1@protonmail.com')">brownspy1@protonmail.com</span>`);
+    printLine(`<span class="c-amber">║</span>  <span class="c-green">🐙 GitHub  :</span> <span class="c-cyan link-tag" onclick="window.open('https://github.com/brownspy1','_blank')">@brownspy1</span>`);
+    printLine(`<span class="c-amber">║</span>  <span class="c-green">📘 Facebook:</span> <span class="c-cyan link-tag" onclick="window.open('https://fb.com/brownspy1','_blank')">@brownspy1</span>`);
+    printLine(`<span class="c-amber bold">╚══════════════════════════════════════════════╝</span>`);
+    printBlank();
+  }
+
+  function cmdSocial() {
+    printBlank();
+    printLine(`<span class="c-cyan bold">[ SOCIAL LINKS ]</span>`);
+    printBlank();
+    const socials = [
+      ['🐙 GitHub',    'https://github.com/brownspy1'],
+      ['🐦 Twitter',   'https://twitter.com/brownspy1'],
+      ['💼 LinkedIn',  'https://linkedin.com/in/m-mahadi-hasan-aa8422228'],
+      ['📘 Facebook',  'https://fb.com/brownspy1'],
+      ['📸 Instagram', 'https://instagram.com/brownspy1'],
+      ['▶️  YouTube',   'https://www.youtube.com/c/brownspy1'],
+      ['🎮 Discord',   'https://discord.gg/brownspy1'],
+    ];
+    socials.forEach(([name, url]) => {
+      printLine(`  ${name.padEnd(15)} <span class="c-cyan link-tag" onclick="window.open('${url}','_blank')">${url}</span>`);
+    });
+    printBlank();
+  }
+
+  function cmdWhoami() {
+    printLine(`<span class="c-green">mahadi</span>`);
+    printLine(`<span class="c-dim">uid=1000(mahadi) gid=1000(mahadi) groups=1000(mahadi),27(sudo),1001(devs)</span>`);
+  }
+
+  function cmdLs() {
+    printBlank();
+    const items = ['about/', 'skills/', 'projects/', 'education/', 'contact/', 'social/', 'README.md'];
+    printLine(items.map(i => i.endsWith('/') 
+      ? `<span class="c-cyan bold">${i}</span>` 
+      : `<span class="c-white">${i}</span>`
+    ).join('  '));
+    printBlank();
+  }
+
+  function cmdExit() {
+    printLine(`<span class="c-amber">Closing session... Goodbye, Mahadi! 👋</span>`);
+    setTimeout(() => {
+      document.getElementById('terminal-wrapper').style.opacity = '0';
+      document.getElementById('terminal-wrapper').style.transition = 'opacity 1s';
+    }, 800);
+  }
+
+  function cmdSudo() {
+    printLine(`<span class="c-red">[sudo] password for mahadi: </span>`);
+    setTimeout(() => {
+      printLine(`<span class="c-red">Sorry, try again.</span>`);
+      setTimeout(() => {
+        printLine(`<span class="c-red">mahadi is not in the sudoers file. This incident will be reported. 😏</span>`);
+      }, 600);
+    }, 800);
+  }
+
+  function cmdHack() {
+    printLine(`<span class="c-red glitch">INITIATING HACK SEQUENCE... 🔴</span>`, 'glitch');
+    const lines = [
+      'Scanning target network...',
+      'Bypassing firewall [█████████░░░░░░] 60%',
+      'Injecting payload...',
+      'Bypassing firewall [████████████░░░] 80%',
+      'Decrypting RSA-2048...',
+      'Bypassing firewall [███████████████] 100%',
+      '>>> ACCESS DENIED — You are not Mahadi enough 😂 <<<',
+    ];
+    lines.forEach((l, i) => {
+      setTimeout(() => {
+        const cls = i === lines.length - 1 ? 'c-amber' : 'c-red';
+        printLine(`<span class="${cls}">${l}</span>`);
+        scrollBottom();
+      }, 500 * (i + 1));
+    });
+  }
+
+  setTimeout(() => input.focus(), 100);
+}
+</script>
 </body>
 </html>
