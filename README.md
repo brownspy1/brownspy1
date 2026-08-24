@@ -1,3 +1,9 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="dark_mode.svg" />
+  <source media="(prefers-color-scheme: light)" srcset="light_mode.svg" />
+  <img alt="brownspy1's GitHub profile" src="dark_mode.svg" />
+</picture>
+
 <div align="center">
 
 ![Header Wave](https://capsule-render.vercel.app/api?type=waving&color=00FF41,00CC33,FF00FF&height=200&section=header&text=M.%20Mahadi&fontSize=70&fontColor=00FF41&animation=fadeIn&fontAlignY=38&desc=Full-Stack%20Dev%20%7C%20Competitive%20Programmer%20%7C%20CS%20Student&descAlignY=60&descAlign=50)
